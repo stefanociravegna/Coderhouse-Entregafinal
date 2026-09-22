@@ -1,0 +1,1667 @@
+{
+  "name": "Estudio Contable - Atencion al Cliente con Memoria",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "simple": false,
+        "filters": {
+          "labelIds": [
+            "INBOX"
+          ],
+          "q": "-from:me"
+        },
+        "options": {}
+      },
+      "id": "35c30186-8d35-48d9-b125-531d403b38ce",
+      "name": "Trigger: Nuevo email (Gmail)",
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -2720,
+        864
+      ],
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "rAXShF3NckG3acVy",
+          "name": "Gmail account"
+        }
+      },
+      "notes": "Watch en modo 'From now on'. Configurar el filtro de la casilla de consultas del estudio al importar."
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "e308ca0a-445f-46e1-b03d-fa45e9a63806",
+              "name": "email_from",
+              "type": "string",
+              "value": "={{$json[\"from\"][\"value\"][0][\"address\"]}}"
+            },
+            {
+              "id": "4b26b6ec-a4fa-44a3-89fe-0fa398d18fcd",
+              "name": "email_subject",
+              "type": "string",
+              "value": "={{$json[\"subject\"]}}"
+            },
+            {
+              "id": "fd472547-c870-4145-b579-e280595ef584",
+              "name": "email_body",
+              "type": "string",
+              "value": "={{$json[\"text\"]}}"
+            },
+            {
+              "id": "b06cf186-1639-4871-b156-93ceca4a0995",
+              "name": "email_message_id",
+              "type": "string",
+              "value": "={{$json[\"id\"]}}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "888724b6-707d-4966-a2b3-834fdbe1441a",
+      "name": "Extraer datos del email",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -2512,
+        864
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "search",
+        "base": {
+          "__rl": true,
+          "value": "appgfBlFJe7xulFaQ",
+          "mode": "list",
+          "cachedResultName": "Estudio Contable - Atencion al Cliente",
+          "cachedResultUrl": "https://airtable.com/appgfBlFJe7xulFaQ"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tbl069v0KqHjrnTa4",
+          "mode": "list",
+          "cachedResultName": "Clientes",
+          "cachedResultUrl": "https://airtable.com/appgfBlFJe7xulFaQ/tbl069v0KqHjrnTa4"
+        },
+        "filterByFormula": "=AND({Email} != '', LOWER({Email}) = LOWER('{{$json[\"email_from\"]}}'))",
+        "options": {}
+      },
+      "id": "1df552e1-dcd9-4b26-8cba-2bcd9ef54c03",
+      "name": "Airtable: buscar cliente",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        -2288,
+        864
+      ],
+      "alwaysOutputData": true,
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "ys1bKlnc7T1REEfQ",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 1
+          },
+          "conditions": [
+            {
+              "id": "249cc555-74fb-4522-a7b0-9eb075440250",
+              "leftValue": "={{$json[\"id\"]}}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "814ca566-d633-4b27-9116-cdf75237e785",
+      "name": "IF: Cliente identificado?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -2064,
+        864
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "create",
+        "base": {
+          "__rl": true,
+          "value": "appgfBlFJe7xulFaQ",
+          "mode": "list",
+          "cachedResultName": "Estudio Contable - Atencion al Cliente",
+          "cachedResultUrl": "https://airtable.com/appgfBlFJe7xulFaQ"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblgSd76xffVCvGDr",
+          "mode": "list",
+          "cachedResultName": "Consultas",
+          "cachedResultUrl": "https://airtable.com/appgfBlFJe7xulFaQ/tblgSd76xffVCvGDr"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Asunto": "={{ $json[\"email_subject\"]}} }}",
+            "Estado": "No identificado",
+            "Cuerpo_Original": "={{ $json[\"email_body\"]}} }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Asunto",
+              "displayName": "Asunto",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Cuerpo_Original",
+              "displayName": "Cuerpo_Original",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Cliente",
+              "displayName": "Cliente",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "array",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Estado",
+              "displayName": "Estado",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "No identificado",
+                  "value": "No identificado"
+                },
+                {
+                  "name": "Procesado por IA",
+                  "value": "Procesado por IA"
+                },
+                {
+                  "name": "Respondido",
+                  "value": "Respondido"
+                },
+                {
+                  "name": "Rechazado",
+                  "value": "Rechazado"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Categoria_IA",
+              "displayName": "Categoria_IA",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Borrador_Respuesta_IA",
+              "displayName": "Borrador_Respuesta_IA",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Respuesta_Final_Enviada",
+              "displayName": "Respuesta_Final_Enviada",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Fecha_Aprobacion",
+              "displayName": "Fecha_Aprobacion",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "dbcfd077-3b36-4901-ab3d-d212edd7da77",
+      "name": "Airtable: crear 'No identificado'",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        -1824,
+        704
+      ],
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "ys1bKlnc7T1REEfQ",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "C0C3261NM0D"
+        },
+        "text": "=Consulta de un remitente no identificado: {{$json[\"email_from\"]}}. Revisar manualmente.",
+        "otherOptions": {}
+      },
+      "id": "b973f9e3-feba-4dc9-9f0b-aa4c01264db3",
+      "name": "Slack: alerta revision manual",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.2,
+      "position": [
+        -1600,
+        704
+      ],
+      "webhookId": "f0aa004f-b0f9-4458-aeed-d91386c9aac1",
+      "credentials": {
+        "slackApi": {
+          "id": "P001q9Jr4T8492Wx",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "id": "01af21b5-b84e-4e27-9769-26681c1c4032",
+      "name": "FIN (ruta manual - no identificado)",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        -1392,
+        704
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "search",
+        "base": {
+          "__rl": true,
+          "value": "appgfBlFJe7xulFaQ",
+          "mode": "list",
+          "cachedResultName": "Estudio Contable - Atencion al Cliente",
+          "cachedResultUrl": "https://airtable.com/appgfBlFJe7xulFaQ"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblgSd76xffVCvGDr",
+          "mode": "list",
+          "cachedResultName": "Consultas",
+          "cachedResultUrl": "https://airtable.com/appgfBlFJe7xulFaQ/tblgSd76xffVCvGDr"
+        },
+        "filterByFormula": "=AND(SEARCH('{{$('Airtable: buscar cliente').first().json[\"Nombre_Razon_Social\"]}}', ARRAYJOIN({Cliente})), RECORD_ID() != '{{$json[\"id\"]}}')",
+        "returnAll": false,
+        "limit": 5,
+        "options": {}
+      },
+      "id": "e4bd5517-7c58-4491-a438-837945d8a469",
+      "name": "Airtable: traer historial de consultas",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        -1824,
+        992
+      ],
+      "alwaysOutputData": true,
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "ys1bKlnc7T1REEfQ",
+          "name": "Airtable Personal Access Token account"
+        }
+      },
+      "notes": "CORREGIDO -- referencia el id del cliente por nombre de nodo, ya que ahora 'Airtable: crear consulta' se ejecuta antes en la cadena."
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googlePalmApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"system_instruction\": {\"parts\": [{\"text\": \"Asistente de atencion al cliente del Estudio Contable. Clasifica la consulta (Vencimiento, Comprobante, Consulta_general, Otro) y redacta una respuesta breve en espanol rioplatense. No inventes fechas ni montos. Devolve solo JSON con las claves categoria y respuesta_borrador.\"}]},\n  \"contents\": [{\"role\": \"user\", \"parts\": [{\"text\": {{ JSON.stringify('CLIENTE: ' + $('Airtable: buscar cliente').first().json.Nombre_Razon_Social + '\\nHISTORIAL: ' + ($('Airtable: traer historial de consultas').all().map(i => (i.json.Categoria_IA || '') + ' - ' + (i.json.Asunto || '')).filter(s => s.trim() !== '-').join(' | ') || 'sin historial') + '\\nASUNTO: ' + $('Extraer datos del email').first().json.email_subject + '\\nCONSULTA: ' + String($('Extraer datos del email').first().json.email_body || '').slice(0, 3000)) }}}]}],\n  \"generationConfig\": {\"maxOutputTokens\": 1024, \"responseMimeType\": \"application/json\"}\n}",
+        "options": {
+          "timeout": 60000
+        }
+      },
+      "id": "5a3d5d92-e9be-4d12-bfb6-3988b9637f9d",
+      "name": "Gemini API: clasificar y redactar",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -1600,
+        992
+      ],
+      "retryOnFail": true,
+      "maxTries": 5,
+      "waitBetweenTries": 5000,
+      "executeOnce": true,
+      "credentials": {
+        "googlePalmApi": {
+          "id": "S0VCRBf8Cuuzxa5L",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      },
+      "onError": "continueRegularOutput",
+      "notes": "Credencial 'httpHeaderAuth' a crear en n8n: header 'x-goog-api-key' con la API key de Google AI Studio. continueOnFail=true para poder rutear al Error Handler en vez de romper el flujo. NOTA: la API de Gemini no tiene un campo inline equivalente a cache_control de Anthropic -- el ahorro por caching en Gemini se hace vía un recurso CachedContent aparte (llamada previa a la API), no dentro de este mismo body. Revisar si corresponde ajustar la Matriz de Costos (doc 3)."
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 1
+          },
+          "conditions": [
+            {
+              "id": "dab45228-3a27-48dd-b091-5dc6b84a6fcb",
+              "leftValue": "={{$json[\"error\"]}}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "empty"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "031b4b67-5897-4e18-927e-d43137268546",
+      "name": "IF: Respuesta IA OK?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -1392,
+        992
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "create",
+        "base": {
+          "__rl": true,
+          "value": "appgfBlFJe7xulFaQ",
+          "mode": "list",
+          "cachedResultName": "Estudio Contable - Atencion al Cliente",
+          "cachedResultUrl": "https://airtable.com/appgfBlFJe7xulFaQ"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tbl43LZIMTHYXIYt0",
+          "mode": "list",
+          "cachedResultName": "Errores",
+          "cachedResultUrl": "https://airtable.com/appgfBlFJe7xulFaQ/tbl43LZIMTHYXIYt0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Tipo_Error": "API_IA",
+            "Detalle_Error": "={{$json[\"error\"]}}",
+            "Estado_Resolucion": "Pendiente",
+            "Consulta_Relacionada": "={{[$('Airtable: crear consulta').first().json.id]}}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Tipo_Error",
+              "displayName": "Tipo_Error",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Detalle_Error",
+              "displayName": "Detalle_Error",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Estado_Resolucion",
+              "displayName": "Estado_Resolucion",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Pendiente",
+                  "value": "Pendiente"
+                },
+                {
+                  "name": "Resuelto",
+                  "value": "Resuelto"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "06859170-98ee-4b1a-b695-24091d7c60fc",
+      "name": "Airtable: registrar error",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        -1168,
+        864
+      ],
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "ys1bKlnc7T1REEfQ",
+          "name": "Airtable Personal Access Token account"
+        }
+      },
+      "notes": "CORREGIDO -- Detalle_Error leia .message de un objeto que ya no existe (el nodo Parsear normaliza error a string), y ahora vincula la consulta relacionada."
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "C0C354NEKPG"
+        },
+        "text": "=Fallo la llamada a Gemini tras los reintentos. Remitente: {{$('Extraer datos del email').first().json.email_from}}. Detalle: {{$('Parsear respuesta Gemini').first().json.error}}",
+        "otherOptions": {}
+      },
+      "id": "a8c4c8f5-eede-44f8-b551-3eb8360d7af0",
+      "name": "Slack: alerta admin (error)",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.2,
+      "position": [
+        -944,
+        864
+      ],
+      "webhookId": "b27f7bab-eca4-4425-afce-ab0b2293b218",
+      "credentials": {
+        "slackApi": {
+          "id": "P001q9Jr4T8492Wx",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "id": "b8db9aaf-5ab2-448d-8467-33b3d5dbb14e",
+      "name": "FIN (ruta de error)",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        -720,
+        864
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "base": {
+          "__rl": true,
+          "value": "appgfBlFJe7xulFaQ",
+          "mode": "list",
+          "cachedResultName": "Estudio Contable - Atencion al Cliente",
+          "cachedResultUrl": "https://airtable.com/appgfBlFJe7xulFaQ"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblgSd76xffVCvGDr",
+          "mode": "list",
+          "cachedResultName": "Consultas",
+          "cachedResultUrl": "https://airtable.com/appgfBlFJe7xulFaQ/tblgSd76xffVCvGDr"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Estado": "Procesado por IA",
+            "Borrador_Respuesta_IA": "={{$json[\"respuesta_borrador\"]}}",
+            "Categoria_IA": "={{$json[\"categoria\"]}}",
+            "id": "={{$('Airtable: crear consulta').first().json.id}}"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": false
+            },
+            {
+              "id": "Asunto",
+              "displayName": "Asunto",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Cuerpo_Original",
+              "displayName": "Cuerpo_Original",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Cliente",
+              "displayName": "Cliente",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "array",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Estado",
+              "displayName": "Estado",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "No identificado",
+                  "value": "No identificado"
+                },
+                {
+                  "name": "Procesado por IA",
+                  "value": "Procesado por IA"
+                },
+                {
+                  "name": "Respondido",
+                  "value": "Respondido"
+                },
+                {
+                  "name": "Rechazado",
+                  "value": "Rechazado"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Categoria_IA",
+              "displayName": "Categoria_IA",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Borrador_Respuesta_IA",
+              "displayName": "Borrador_Respuesta_IA",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Respuesta_Final_Enviada",
+              "displayName": "Respuesta_Final_Enviada",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Fecha_Aprobacion",
+              "displayName": "Fecha_Aprobacion",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "366e76a0-fa06-412a-8a7e-10e92ea0047c",
+      "name": "Airtable: guardar borrador",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        -1168,
+        1088
+      ],
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "ys1bKlnc7T1REEfQ",
+          "name": "Airtable Personal Access Token account"
+        }
+      },
+      "notes": "CORREGIDO -- expresion de id estaba rota (llave de mas) y apuntaba a un registro que nunca se habia creado."
+    },
+    {
+      "parameters": {
+        "operation": "sendAndWait",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "C0C3261NM0D"
+        },
+        "message": "=*Nueva consulta para aprobar*\nCliente: {{$('Airtable: buscar cliente').first().json.Nombre_Razon_Social}}\nCategoria: {{ ($json.fields || $json).Categoria_IA }}\n\n*Consulta original:*\n{{String($('Extraer datos del email').first().json.email_body || '').slice(0, 500)}}\n\n*Borrador de respuesta:*\n{{ ($json.fields || $json).Borrador_Respuesta_IA }}",
+        "approvalOptions": {
+          "values": {
+            "approvalType": "double",
+            "approveLabel": "Aprobar y enviar",
+            "disapproveLabel": "Rechazar"
+          }
+        },
+        "options": {}
+      },
+      "id": "00ca83bd-37ef-4bee-9a78-b7f0e74a0b9c",
+      "name": "Slack: enviar aprobacion (HITL)",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        -944,
+        1088
+      ],
+      "webhookId": "f3deb615-0e36-4e34-857b-3303a2c3d262",
+      "credentials": {
+        "slackApi": {
+          "id": "P001q9Jr4T8492Wx",
+          "name": "Slack account"
+        }
+      },
+      "notes": "CORREGIDO -- ahora manda botones Aprobar/Rechazar (Block Kit) con el ID real de la consulta en 'value'. Requiere una Slack App con Interactivity habilitada apuntando al webhook estatico 'Webhook: recibir aprobacion Slack' (URL fija, no la genera este nodo)."
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 1
+          },
+          "conditions": [
+            {
+              "id": "4486d5ec-2afa-47dc-b3aa-9666d488dd95",
+              "leftValue": "={{$json[\"data\"][\"approved\"]}}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "27ad4e22-4f39-4a73-9e4f-02d03dda89dc",
+      "name": "IF: Aprobado por humano?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -496,
+        1088
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "base": {
+          "__rl": true,
+          "value": "appgfBlFJe7xulFaQ",
+          "mode": "list",
+          "cachedResultName": "Estudio Contable - Atencion al Cliente",
+          "cachedResultUrl": "https://airtable.com/appgfBlFJe7xulFaQ"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblgSd76xffVCvGDr",
+          "mode": "list",
+          "cachedResultName": "Consultas",
+          "cachedResultUrl": "https://airtable.com/appgfBlFJe7xulFaQ/tblgSd76xffVCvGDr"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Estado": "Rechazado",
+            "id": "={{$('Airtable: crear consulta').first().json.id}}"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": false
+            },
+            {
+              "id": "Asunto",
+              "displayName": "Asunto",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Cuerpo_Original",
+              "displayName": "Cuerpo_Original",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Cliente",
+              "displayName": "Cliente",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "array",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Estado",
+              "displayName": "Estado",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "No identificado",
+                  "value": "No identificado"
+                },
+                {
+                  "name": "Procesado por IA",
+                  "value": "Procesado por IA"
+                },
+                {
+                  "name": "Respondido",
+                  "value": "Respondido"
+                },
+                {
+                  "name": "Rechazado",
+                  "value": "Rechazado"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Categoria_IA",
+              "displayName": "Categoria_IA",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Borrador_Respuesta_IA",
+              "displayName": "Borrador_Respuesta_IA",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Respuesta_Final_Enviada",
+              "displayName": "Respuesta_Final_Enviada",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Fecha_Aprobacion",
+              "displayName": "Fecha_Aprobacion",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "3aee80e6-8b9f-4e33-9a93-9d7cd68e263a",
+      "name": "Airtable: marcar rechazado",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        -272,
+        976
+      ],
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "ys1bKlnc7T1REEfQ",
+          "name": "Airtable Personal Access Token account"
+        }
+      },
+      "notes": "CORREGIDO -- id tomado directo del boton de Slack (antes tenia una expresion rota)."
+    },
+    {
+      "parameters": {},
+      "id": "540ca1ef-10b8-4784-b3e4-966ee858d03e",
+      "name": "FIN (ruta manual - rechazado)",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        -64,
+        976
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "reply",
+        "messageId": "={{$('Extraer datos del email').first().json.email_message_id}}",
+        "emailType": "text",
+        "message": "={{ ($('Airtable: buscar consulta por ID').first().json.fields || $('Airtable: buscar consulta por ID').first().json).Borrador_Respuesta_IA }}",
+        "options": {}
+      },
+      "id": "8996ecf1-26f1-48dc-971a-12dc1a7c82e3",
+      "name": "Gmail: enviar respuesta al cliente",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        -272,
+        1184
+      ],
+      "webhookId": "878de33b-5e27-42d3-a6bd-83b0bfb5e208",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "rAXShF3NckG3acVy",
+          "name": "Gmail account"
+        }
+      },
+      "notes": "CORREGIDO -- ahora lee del nodo 'Airtable: buscar consulta por ID' (antes dependia de datos que no existian en esta ejecucion)."
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "base": {
+          "__rl": true,
+          "value": "appgfBlFJe7xulFaQ",
+          "mode": "list",
+          "cachedResultName": "Estudio Contable - Atencion al Cliente",
+          "cachedResultUrl": "https://airtable.com/appgfBlFJe7xulFaQ"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblgSd76xffVCvGDr",
+          "mode": "list",
+          "cachedResultName": "Consultas",
+          "cachedResultUrl": "https://airtable.com/appgfBlFJe7xulFaQ/tblgSd76xffVCvGDr"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Estado": "Respondido",
+            "Respuesta_Final_Enviada": "={{ ($('Airtable: buscar consulta por ID').first().json.fields || $('Airtable: buscar consulta por ID').first().json).Borrador_Respuesta_IA }}",
+            "Fecha_Aprobacion": "={{$now.toISO()}}",
+            "id": "={{$('Airtable: buscar consulta por ID').first().json.id}}"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": false
+            },
+            {
+              "id": "Asunto",
+              "displayName": "Asunto",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Cuerpo_Original",
+              "displayName": "Cuerpo_Original",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Cliente",
+              "displayName": "Cliente",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "array",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Estado",
+              "displayName": "Estado",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "No identificado",
+                  "value": "No identificado"
+                },
+                {
+                  "name": "Procesado por IA",
+                  "value": "Procesado por IA"
+                },
+                {
+                  "name": "Respondido",
+                  "value": "Respondido"
+                },
+                {
+                  "name": "Rechazado",
+                  "value": "Rechazado"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Categoria_IA",
+              "displayName": "Categoria_IA",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Borrador_Respuesta_IA",
+              "displayName": "Borrador_Respuesta_IA",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Respuesta_Final_Enviada",
+              "displayName": "Respuesta_Final_Enviada",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Fecha_Aprobacion",
+              "displayName": "Fecha_Aprobacion",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "0f8ada78-7e72-4339-aa46-64c2744440e3",
+      "name": "Airtable: actualizar estado + KPIs",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        -64,
+        1184
+      ],
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "ys1bKlnc7T1REEfQ",
+          "name": "Airtable Personal Access Token account"
+        }
+      },
+      "notes": "CORREGIDO -- id y contenido tomados del nodo de busqueda, no del output de Gmail (que no trae esos campos)."
+    },
+    {
+      "parameters": {},
+      "id": "a1ab73bd-1454-4a72-85ec-854ff6c0dfc2",
+      "name": "FIN (respuesta entregada)",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        176,
+        1184
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "create",
+        "base": {
+          "__rl": true,
+          "value": "appgfBlFJe7xulFaQ",
+          "mode": "list",
+          "cachedResultName": "Estudio Contable - Atencion al Cliente",
+          "cachedResultUrl": "https://airtable.com/appgfBlFJe7xulFaQ"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblgSd76xffVCvGDr",
+          "mode": "list",
+          "cachedResultName": "Consultas",
+          "cachedResultUrl": "https://airtable.com/appgfBlFJe7xulFaQ/tblgSd76xffVCvGDr"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Cliente": "={{[$json[\"id\"]]}}",
+            "Asunto": "={{$('Extraer datos del email').item.json.email_subject}}",
+            "Cuerpo_Original": "={{$('Extraer datos del email').item.json.email_body}}",
+            "Estado": "Pendiente"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Asunto",
+              "displayName": "Asunto",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Cuerpo_Original",
+              "displayName": "Cuerpo_Original",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Cliente",
+              "displayName": "Cliente",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "array",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Estado",
+              "displayName": "Estado",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "No identificado",
+                  "value": "No identificado"
+                },
+                {
+                  "name": "Procesado por IA",
+                  "value": "Procesado por IA"
+                },
+                {
+                  "name": "Respondido",
+                  "value": "Respondido"
+                },
+                {
+                  "name": "Rechazado",
+                  "value": "Rechazado"
+                },
+                {
+                  "name": "Pendiente",
+                  "value": "Pendiente"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Categoria_IA",
+              "displayName": "Categoria_IA",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Borrador_Respuesta_IA",
+              "displayName": "Borrador_Respuesta_IA",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Respuesta_Final_Enviada",
+              "displayName": "Respuesta_Final_Enviada",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Fecha_Aprobacion",
+              "displayName": "Fecha_Aprobacion",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "e1286064-5a47-46f0-ba05-b3f3e58c4c38",
+      "name": "Airtable: crear consulta",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "ys1bKlnc7T1REEfQ",
+          "name": "Airtable Personal Access Token account"
+        }
+      },
+      "notes": "NUEVO NODO -- falta agregar el campo 'Email_Cliente' (texto corto) a la tabla Consultas en Airtable si todavia no existe. Sin este nodo no hay ID de Consulta para que los nodos de mas adelante (guardar borrador, marcar rechazado, actualizar estado+KPIs) puedan actualizar el registro correcto."
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const item = $input.item.json;\nif (item.error) {\n  const msg = typeof item.error === 'string' ? item.error : JSON.stringify(item.error);\n  return { json: { error: msg } };\n}\ntry {\n  let text = item.candidates[0].content.parts[0].text;\n  text = text.replace(/^\\s*`{3}(?:json)?\\s*/i, '').replace(/`{3}\\s*$/, '').trim();\n  const parsed = JSON.parse(text);\n  if (!parsed.categoria || !parsed.respuesta_borrador) throw new Error('faltan claves categoria/respuesta_borrador');\n  return { json: { error: '', categoria: parsed.categoria, respuesta_borrador: parsed.respuesta_borrador } };\n} catch (e) {\n  return { json: { error: 'No se pudo parsear la respuesta de Gemini: ' + e.message } };\n}"
+      },
+      "id": "ca21f792-718b-4fa0-8132-bc016da44cf9",
+      "name": "Parsear respuesta Gemini",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        560,
+        0
+      ],
+      "notes": "NUEVO NODO -- normaliza la respuesta anidada de Gemini a los campos planos que espera Airtable, y homogeneiza el campo 'error' para el router siguiente."
+    },
+    {
+      "parameters": {
+        "base": {
+          "__rl": true,
+          "value": "appgfBlFJe7xulFaQ",
+          "mode": "list",
+          "cachedResultName": "Estudio Contable - Atencion al Cliente",
+          "cachedResultUrl": "https://airtable.com/appgfBlFJe7xulFaQ"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblgSd76xffVCvGDr",
+          "mode": "list",
+          "cachedResultName": "Consultas",
+          "cachedResultUrl": "https://airtable.com/appgfBlFJe7xulFaQ/tblgSd76xffVCvGDr"
+        },
+        "id": "={{$('Airtable: crear consulta').first().json.id}}",
+        "options": {}
+      },
+      "id": "77e80ecf-4c18-4918-b141-3714ba50cfae",
+      "name": "Airtable: buscar consulta por ID",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        1664,
+        224
+      ],
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "ys1bKlnc7T1REEfQ",
+          "name": "Airtable Personal Access Token account"
+        }
+      },
+      "notes": "NUEVO NODO -- re-trae el registro completo (borrador, asunto, email del cliente) usando el id que viaja en el boton de Slack, porque esta es una ejecucion nueva."
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Trigger: Nuevo email (Gmail)": {
+      "main": [
+        [
+          {
+            "node": "Extraer datos del email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extraer datos del email": {
+      "main": [
+        [
+          {
+            "node": "Airtable: buscar cliente",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Airtable: buscar cliente": {
+      "main": [
+        [
+          {
+            "node": "IF: Cliente identificado?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF: Cliente identificado?": {
+      "main": [
+        [
+          {
+            "node": "Airtable: crear consulta",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Airtable: crear 'No identificado'",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Airtable: crear 'No identificado'": {
+      "main": [
+        [
+          {
+            "node": "Slack: alerta revision manual",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Slack: alerta revision manual": {
+      "main": [
+        [
+          {
+            "node": "FIN (ruta manual - no identificado)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Airtable: traer historial de consultas": {
+      "main": [
+        [
+          {
+            "node": "Gemini API: clasificar y redactar",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF: Respuesta IA OK?": {
+      "main": [
+        [
+          {
+            "node": "Airtable: guardar borrador",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Airtable: registrar error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Airtable: registrar error": {
+      "main": [
+        [
+          {
+            "node": "Slack: alerta admin (error)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Slack: alerta admin (error)": {
+      "main": [
+        [
+          {
+            "node": "FIN (ruta de error)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Airtable: guardar borrador": {
+      "main": [
+        [
+          {
+            "node": "Slack: enviar aprobacion (HITL)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF: Aprobado por humano?": {
+      "main": [
+        [
+          {
+            "node": "Airtable: buscar consulta por ID",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Airtable: marcar rechazado",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Airtable: marcar rechazado": {
+      "main": [
+        [
+          {
+            "node": "FIN (ruta manual - rechazado)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gmail: enviar respuesta al cliente": {
+      "main": [
+        [
+          {
+            "node": "Airtable: actualizar estado + KPIs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Airtable: actualizar estado + KPIs": {
+      "main": [
+        [
+          {
+            "node": "FIN (respuesta entregada)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gemini API: clasificar y redactar": {
+      "main": [
+        [
+          {
+            "node": "Parsear respuesta Gemini",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Airtable: crear consulta": {
+      "main": [
+        [
+          {
+            "node": "Airtable: traer historial de consultas",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parsear respuesta Gemini": {
+      "main": [
+        [
+          {
+            "node": "IF: Respuesta IA OK?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Airtable: buscar consulta por ID": {
+      "main": [
+        [
+          {
+            "node": "Gmail: enviar respuesta al cliente",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Slack: enviar aprobacion (HITL)": {
+      "main": [
+        [
+          {
+            "node": "IF: Aprobado por humano?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "f4e618f2-1e2b-42fb-8c4e-8d7ac3e3071c",
+  "meta": {
+    "instanceId": "9f5d6cca4d2aac3250f854481ac1f4234ee53b7a48e54ddea589e943199bc078"
+  },
+  "nodeGroups": [],
+  "id": "eafN5MjS0dpOi5Fk",
+  "tags": []
+}
